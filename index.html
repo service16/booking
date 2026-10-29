@@ -183,7 +183,7 @@
         </div>
     </div>
 
-    <!-- Ultra-Polished Professional E-Ticket Receipt Modal -->
+    <!-- Flawless Professional E-Ticket Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
         <div id="receiptContent" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto border border-slate-200">
             <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-bk-blue via-blue-600 to-bk-yellow"></div>
@@ -215,27 +215,26 @@
                 </div>
             </div>
 
-            <!-- Flight Segment Box -->
+            <!-- Flight Segment Box (Fully Responsive & Overflow-Protected) -->
             <div class="bg-blue-900 text-white rounded-xl p-5 mb-5 shadow-inner">
                 <div class="flex justify-between items-center border-b border-blue-800 pb-3 mb-3 text-xs">
                     <span id="recCabin" class="bg-bk-yellow text-slate-900 font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">Economy Class</span>
                     <span id="recFlightNo" class="font-mono text-blue-200">Flight BK-409</span>
                 </div>
-                <div class="flex justify-between items-center">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <div>
                         <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Origin</span>
                         <h3 id="recOriginCode" class="text-2xl font-black tracking-wider">JFK</h3>
-                        <p id="recOriginCity" class="text-xs text-blue-200 truncate max-w-[180px]">New York</p>
+                        <p id="recOriginCity" class="text-xs text-blue-200 leading-tight mt-0.5">New York</p>
                     </div>
-                    <div class="text-center px-2">
-                        <span class="text-xs text-blue-300 block font-mono">DIRECT</span>
-                        <div class="w-24 border-t border-dashed border-blue-400 my-1"></div>
-                        <span class="text-[10px] text-blue-300" id="recDate">2026-10-30</span>
+                    <div class="text-center md:border-x md:border-blue-800 px-2 py-1">
+                        <span class="text-xs text-blue-300 block font-mono font-bold">DIRECT FLIGHT</span>
+                        <span class="text-[10px] text-blue-200 block mt-0.5" id="recDate">2026-10-30</span>
                     </div>
-                    <div class="text-right">
+                    <div class="md:text-right">
                         <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Destination</span>
                         <h3 id="recDestCode" class="text-2xl font-black tracking-wider">LHR</h3>
-                        <p id="recDestCity" class="text-xs text-blue-200 truncate max-w-[180px]">London</p>
+                        <p id="recDestCity" class="text-xs text-blue-200 leading-tight mt-0.5">London</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-800 text-[11px] text-blue-200">
@@ -385,7 +384,7 @@
             document.getElementById('recFlightNo').innerText = `Flight ${b.flightNum}`;
             document.getElementById('recDate').innerText = b.date;
 
-            // Extract 3-letter airport codes and city names cleanly
+            // Extract codes and clean city names cleanly
             let originParts = b.origin.split(' ');
             let originCode = originParts[0].length <= 4 ? originParts[0] : b.origin.substring(0, 3).toUpperCase();
             let originCity = originParts.slice(1).join(' ') || b.origin;
