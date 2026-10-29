@@ -76,12 +76,12 @@
                 <div class="bg-bk-yellow p-3 rounded-xl shadow-xl">
                     <form id="bookingDirectForm" class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-white p-4 rounded-lg">
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">From (Airport / City)</label>
-                            <input type="text" id="origin" placeholder="e.g., JFK or New York" required class="w-full bg-white text-slate-900 border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue uppercase font-semibold">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">From (Departure Airport / City)</label>
+                            <input type="text" id="origin" placeholder="e.g., LAUNCESTON AIRPORT" required class="w-full bg-white text-slate-900 border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue uppercase font-semibold">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">To (Airport / City)</label>
-                            <input type="text" id="destination" placeholder="e.g., LHR or London" required class="w-full bg-white text-slate-900 border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue uppercase font-semibold">
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">To (Arrival Airport / City)</label>
+                            <input type="text" id="destination" placeholder="e.g., NGURAH RAI AIRPORT" required class="w-full bg-white text-slate-900 border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue uppercase font-semibold">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Travel Date (Any Date / Backdate)</label>
@@ -215,7 +215,7 @@
                 </div>
             </div>
 
-            <!-- Flight Segment Box (Fully Responsive & Overflow-Protected) -->
+            <!-- Flight Segment Box (Exact Input Preservation) -->
             <div class="bg-blue-900 text-white rounded-xl p-5 mb-5 shadow-inner">
                 <div class="flex justify-between items-center border-b border-blue-800 pb-3 mb-3 text-xs">
                     <span id="recCabin" class="bg-bk-yellow text-slate-900 font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">Economy Class</span>
@@ -223,18 +223,16 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <div>
-                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Origin</span>
-                        <h3 id="recOriginCode" class="text-2xl font-black tracking-wider">JFK</h3>
-                        <p id="recOriginCity" class="text-xs text-blue-200 leading-tight mt-0.5">New York</p>
+                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Departing Airport / City</span>
+                        <h3 id="recOrigin" class="text-lg font-black tracking-wide leading-tight text-white uppercase">JFK</h3>
                     </div>
                     <div class="text-center md:border-x md:border-blue-800 px-2 py-1">
                         <span class="text-xs text-blue-300 block font-mono font-bold">DIRECT FLIGHT</span>
                         <span class="text-[10px] text-blue-200 block mt-0.5" id="recDate">2026-10-30</span>
                     </div>
                     <div class="md:text-right">
-                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Destination</span>
-                        <h3 id="recDestCode" class="text-2xl font-black tracking-wider">LHR</h3>
-                        <p id="recDestCity" class="text-xs text-blue-200 leading-tight mt-0.5">London</p>
+                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Arriving Airport / City</span>
+                        <h3 id="recDestination" class="text-lg font-black tracking-wide leading-tight text-white uppercase">LHR</h3>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-800 text-[11px] text-blue-200">
@@ -384,19 +382,9 @@
             document.getElementById('recFlightNo').innerText = `Flight ${b.flightNum}`;
             document.getElementById('recDate').innerText = b.date;
 
-            // Extract codes and clean city names cleanly
-            let originParts = b.origin.split(' ');
-            let originCode = originParts[0].length <= 4 ? originParts[0] : b.origin.substring(0, 3).toUpperCase();
-            let originCity = originParts.slice(1).join(' ') || b.origin;
-
-            let destParts = b.destination.split(' ');
-            let destCode = destParts[0].length <= 4 ? destParts[0] : b.destination.substring(0, 3).toUpperCase();
-            let destCity = destParts.slice(1).join(' ') || b.destination;
-
-            document.getElementById('recOriginCode').innerText = originCode;
-            document.getElementById('recOriginCity').innerText = originCity;
-            document.getElementById('recDestCode').innerText = destCode;
-            document.getElementById('recDestCity').innerText = destCity;
+            // Display exact typed airport/city strings without breaking or auto-shortening
+            document.getElementById('recOrigin').innerText = b.origin;
+            document.getElementById('recDestination').innerText = b.destination;
 
             // Itemized pricing calculation
             let baseFare = Math.round(b.price * 0.82);
