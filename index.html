@@ -183,99 +183,144 @@
         </div>
     </div>
 
-    <!-- Flawless Professional E-Ticket Receipt Modal -->
+    <!-- Dual-Format Professional Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
-        <div id="receiptContent" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto border border-slate-200">
-            <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-bk-blue via-blue-600 to-bk-yellow"></div>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative overflow-hidden max-h-[90vh] flex flex-col border border-slate-200">
             
-            <!-- Receipt Header -->
-            <div class="flex justify-between items-center mb-6 pt-2 border-b border-slate-100 pb-4">
-                <div class="flex items-center space-x-3">
-                    <span class="text-xl font-black tracking-tight bg-bk-blue text-white px-3 py-1 rounded">Booking<span class="text-bk-yellow">.com</span></span>
-                    <div>
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Electronic Ticket Itinerary</h4>
-                        <p class="text-sm font-mono font-bold text-slate-700" id="receiptRef">Booking Ref: BK948201</p>
-                    </div>
+            <!-- Modal Top Switcher Tabs (Standard Receipt vs Boarding Pass) -->
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200 no-print">
+                <div class="flex space-x-2">
+                    <button onclick="switchReceiptView('invoice')" id="tabInvoice" class="bg-bk-blue text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                        📋 Standard Receipt / Invoice
+                    </button>
+                    <button onclick="switchReceiptView('boardingPass')" id="tabBoardingPass" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-1.5 rounded-lg text-xs font-bold transition">
+                        ✈️ Official Boarding Pass
+                    </button>
                 </div>
-                <div class="text-right">
-                    <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider">CONFIRMED & PAID</span>
-                    <p class="text-[10px] text-slate-400 mt-1 font-mono" id="issueDate">Issued: 2026-10-29</p>
-                </div>
+                <button onclick="closeReceipt()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
             </div>
 
-            <!-- Passenger Details Bar -->
-            <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-5 text-sm">
-                <div>
-                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Passenger Name</span>
-                    <strong id="recPassenger" class="text-slate-900 text-base">John Doe</strong>
-                </div>
-                <div>
-                    <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Passport / ID Number</span>
-                    <strong id="recId" class="text-slate-900 text-base font-mono">AB123456</strong>
-                </div>
-            </div>
-
-            <!-- Flight Segment Box (Exact Input Preservation) -->
-            <div class="bg-blue-900 text-white rounded-xl p-5 mb-5 shadow-inner">
-                <div class="flex justify-between items-center border-b border-blue-800 pb-3 mb-3 text-xs">
-                    <span id="recCabin" class="bg-bk-yellow text-slate-900 font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider">Economy Class</span>
-                    <span id="recFlightNo" class="font-mono text-blue-200">Flight BK-409</span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                    <div>
-                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Departing Airport / City</span>
-                        <h3 id="recOrigin" class="text-lg font-black tracking-wide leading-tight text-white uppercase">JFK</h3>
+            <!-- Receipt Content Container to be Downloaded/Printed -->
+            <div id="receiptContent" class="flex-grow overflow-y-auto py-4 space-y-4">
+                
+                <!-- VIEW 1: STANDARD INVOICE & BILLING RECEIPT -->
+                <div id="viewInvoice" class="space-y-4">
+                    <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+                        <div>
+                            <span class="text-xl font-black tracking-tight bg-bk-blue text-white px-2.5 py-1 rounded">Booking<span class="text-bk-yellow">.com</span></span>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-2">Official Financial Receipt & Tax Invoice</h4>
+                            <p class="text-xs font-mono font-bold text-slate-700 mt-0.5" id="invRef">Booking Ref: BK948201</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">PAID IN FULL</span>
+                            <p class="text-[10px] text-slate-400 mt-1 font-mono" id="invDate">Date: 2026-10-29</p>
+                        </div>
                     </div>
-                    <div class="text-center md:border-x md:border-blue-800 px-2 py-1">
-                        <span class="text-xs text-blue-300 block font-mono font-bold">DIRECT FLIGHT</span>
-                        <span class="text-[10px] text-blue-200 block mt-0.5" id="recDate">2026-10-30</span>
-                    </div>
-                    <div class="md:text-right">
-                        <span class="text-blue-300 text-[10px] uppercase font-bold tracking-widest block">Arriving Airport / City</span>
-                        <h3 id="recDestination" class="text-lg font-black tracking-wide leading-tight text-white uppercase">LHR</h3>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-blue-800 text-[11px] text-blue-200">
-                    <div><span class="block text-blue-400 uppercase text-[9px]">Boarding Time</span> <strong>08:15 AM</strong></div>
-                    <div><span class="block text-blue-400 uppercase text-[9px]">Gate</span> <strong class="font-mono">B4</strong></div>
-                    <div><span class="block text-blue-400 uppercase text-[9px]">Seat</span> <strong class="font-mono">14A</strong></div>
-                </div>
-            </div>
 
-            <!-- Tabular Fare Breakdown -->
-            <div class="mb-6 border border-slate-200 rounded-xl overflow-hidden">
-                <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider flex justify-between">
-                    <span>Description</span>
-                    <span>Amount (USD)</span>
-                </div>
-                <div class="px-4 py-2.5 text-sm flex justify-between border-b border-slate-100 text-slate-700">
-                    <span>Scheduled Airfare & Carrier Surcharges</span>
-                    <span id="recBaseFare" class="font-mono font-semibold">$380.00</span>
-                </div>
-                <div class="px-4 py-2.5 text-sm flex justify-between border-b border-slate-100 text-slate-700">
-                    <span>Government Taxes, Airport Fees & Security</span>
-                    <span id="recTaxes" class="font-mono font-semibold">$70.00</span>
-                </div>
-                <div class="px-4 py-3 bg-slate-50 flex justify-between items-center font-extrabold text-bk-blue text-base">
-                    <span>Total Amount Paid</span>
-                    <span id="recTotal" class="font-mono">$450.00</span>
-                </div>
-            </div>
+                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs">
+                        <div>
+                            <span class="text-slate-400 block uppercase font-bold text-[9px]">Billed To / Passenger</span>
+                            <strong id="invPassenger" class="text-slate-900 text-sm">John Doe</strong>
+                            <p id="invEmail" class="text-slate-500 text-[11px]">john@example.com</p>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block uppercase font-bold text-[9px]">Passport / ID Reference</span>
+                            <strong id="invId" class="text-slate-900 text-sm font-mono">AB123456</strong>
+                        </div>
+                    </div>
 
-            <!-- Aviation Barcode Graphic -->
-            <div class="border-t border-slate-200 pt-4 mb-5 flex flex-col items-center justify-center">
-                <svg id="barcode" class="w-full max-w-xs h-14"></svg>
-                <span class="text-[9px] text-slate-400 tracking-widest uppercase mt-1">Official IATA Boarding Pass Verification Barcode</span>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                        <div class="bg-slate-100 px-4 py-2 border-b border-slate-200 font-bold text-slate-600 uppercase flex justify-between">
+                            <span>Itinerary & Description</span>
+                            <span>Amount (USD)</span>
+                        </div>
+                        <div class="px-4 py-3 flex justify-between border-b border-slate-100 text-slate-700">
+                            <div>
+                                <strong class="block text-slate-900 text-sm" id="invRoute">JFK ➔ LHR</strong>
+                                <span class="text-slate-500" id="invCabinDesc">Economy Class Flight | Date: 2026-10-30</span>
+                            </div>
+                            <span id="invBasePrice" class="font-mono font-semibold">$380.00</span>
+                        </div>
+                        <div class="px-4 py-2.5 flex justify-between border-b border-slate-100 text-slate-600">
+                            <span>Airport Taxes, Security & Regulatory Fees</span>
+                            <span id="invTaxes" class="font-mono">$70.00</span>
+                        </div>
+                        <div class="px-4 py-3 bg-slate-50 flex justify-between items-center font-extrabold text-bk-blue text-sm">
+                            <span>Total Amount Paid</span>
+                            <span id="invTotal" class="font-mono text-base">$450.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: OFFICIAL BOARDING PASS -->
+                <div id="viewBoardingPass" class="space-y-4 hidden">
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg font-black tracking-tight bg-bk-blue text-white px-2 py-0.5 rounded">Booking<span class="text-bk-yellow">.com</span></span>
+                            <span class="text-xs uppercase font-bold text-slate-400">Boarding Pass Itinerary</span>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-slate-600" id="bpRef">Ref: BK948201</span>
+                    </div>
+
+                    <!-- Passenger & ID -->
+                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                        <div>
+                            <span class="text-slate-400 block uppercase font-bold text-[9px]">Passenger Name</span>
+                            <strong id="bpPassenger" class="text-slate-900 text-sm">John Doe</strong>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block uppercase font-bold text-[9px]">Passport / ID</span>
+                            <strong id="bpId" class="text-slate-900 text-sm font-mono">AB123456</strong>
+                        </div>
+                    </div>
+
+                    <!-- Flight Card -->
+                    <div class="bg-blue-900 text-white rounded-xl p-4 shadow-inner">
+                        <div class="flex justify-between items-center border-b border-blue-800 pb-2 mb-2 text-xs">
+                            <span id="bpCabin" class="bg-bk-yellow text-slate-900 font-extrabold px-2 py-0.5 rounded uppercase">Economy Class</span>
+                            <span id="bpFlightNo" class="font-mono text-blue-200">Flight BK-409</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 items-center">
+                            <div>
+                                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-widest block">Departing Airport / City</span>
+                                <h3 id="bpOrigin" class="text-base font-black tracking-wide leading-tight text-white uppercase">JFK</h3>
+                            </div>
+                            <div class="text-center md:border-x md:border-blue-800 px-2 py-1">
+                                <span class="text-[10px] text-blue-300 block font-mono font-bold">DIRECT FLIGHT</span>
+                                <span class="text-[10px] text-blue-200 block" id="bpDate">2026-10-30</span>
+                            </div>
+                            <div class="md:text-right">
+                                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-widest block">Arriving Airport / City</span>
+                                <h3 id="bpDestination" class="text-base font-black tracking-wide leading-tight text-white uppercase">LHR</h3>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-blue-800 text-[11px] text-blue-200">
+                            <div><span class="block text-blue-400 uppercase text-[9px]">Boarding Time</span> <strong>08:15 AM</strong></div>
+                            <div><span class="block text-blue-400 uppercase text-[9px]">Gate</span> <strong class="font-mono">B4</strong></div>
+                            <div><span class="block text-blue-400 uppercase text-[9px]">Seat</span> <strong class="font-mono">14A</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Barcode -->
+                    <div class="border-t border-slate-200 pt-3 flex flex-col items-center justify-center">
+                        <svg id="barcode" class="w-full max-w-xs h-12"></svg>
+                        <span class="text-[9px] text-slate-400 tracking-widest uppercase mt-1">Official IATA Boarding Pass Verification Barcode</span>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Modal Action Buttons -->
-            <div class="flex justify-end space-x-3 no-print pt-3 border-t border-slate-100">
-                <button onclick="downloadPDFReceipt()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition shadow-sm flex items-center space-x-1.5">
-                    <span>Download PDF Receipt</span>
-                </button>
-                <button onclick="closeReceipt()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-5 py-2.5 rounded-lg text-sm transition">
-                    Close
-                </button>
+            <div class="flex justify-between items-center no-print pt-3 border-t border-slate-200 mt-2">
+                <span class="text-xs text-slate-400">Switch tabs above to view both document formats.</span>
+                <div class="space-x-2">
+                    <button onclick="downloadPDFReceipt()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-lg text-xs transition shadow-sm">
+                        Download PDF
+                    </button>
+                    <button onclick="closeReceipt()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-xs transition">
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -287,13 +332,9 @@
 
     <!-- Application Logic Script -->
     <script>
-        // Set default input date to today
         document.getElementById('flightDate').value = new Date().toISOString().split('T')[0];
-
-        // Initialize LocalStorage Badge on load
         updateBadge();
 
-        // Direct Booking Form Submission -> Opens Checkout Modal immediately
         document.getElementById('bookingDirectForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const origin = document.getElementById('origin').value.trim().toUpperCase();
@@ -306,7 +347,6 @@
                 return;
             }
 
-            // Pricing structure
             let basePrice = cabin === 'Private Jet' ? 14500 : (cabin === 'First Class' ? 2800 : 420);
             let flightNum = 'BK-' + Math.floor(100 + Math.random() * 900);
 
@@ -340,30 +380,17 @@
             e.preventDefault();
             const form = document.getElementById('checkoutForm');
             
-            const origin = form.dataset.origin;
-            const destination = form.dataset.destination;
-            const date = form.dataset.date;
-            const cabin = form.dataset.cabin;
-            const price = parseFloat(form.dataset.price);
-            const flightNum = form.dataset.flightNum;
-
-            const passengerName = document.getElementById('passengerName').value.trim();
-            const passengerEmail = document.getElementById('passengerEmail').value.trim();
-            const passengerId = document.getElementById('passengerId').value.toUpperCase().trim();
-
-            const bookingRef = `BK${Math.floor(100000 + Math.random() * 900000)}`;
-
             const bookingData = {
-                ref: bookingRef,
-                passenger: passengerName,
-                email: passengerEmail,
-                idNumber: passengerId,
-                cabin: cabin,
-                origin: origin,
-                destination: destination,
-                date: date,
-                price: price,
-                flightNum: flightNum,
+                ref: `BK${Math.floor(100000 + Math.random() * 900000)}`,
+                passenger: document.getElementById('passengerName').value.trim(),
+                email: document.getElementById('passengerEmail').value.trim(),
+                idNumber: document.getElementById('passengerId').value.toUpperCase().trim(),
+                cabin: form.dataset.cabin,
+                origin: form.dataset.origin,
+                destination: form.dataset.destination,
+                date: form.dataset.date,
+                price: parseFloat(form.dataset.price),
+                flightNum: form.dataset.flightNum,
                 bookedAt: new Date().toLocaleDateString()
             };
 
@@ -373,41 +400,67 @@
             document.getElementById('checkoutForm').reset();
         });
 
+        function switchReceiptView(viewType) {
+            const inv = document.getElementById('viewInvoice');
+            const bp = document.getElementById('viewBoardingPass');
+            const tabInv = document.getElementById('tabInvoice');
+            const tabBp = document.getElementById('tabBoardingPass');
+
+            if (viewType === 'invoice') {
+                inv.classList.remove('hidden');
+                bp.classList.add('hidden');
+                tabInv.className = "bg-bk-blue text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm";
+                tabBp.className = "bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+            } else {
+                bp.classList.remove('hidden');
+                inv.classList.add('hidden');
+                tabBp.className = "bg-bk-blue text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm";
+                tabInv.className = "bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-1.5 rounded-lg text-xs font-bold transition";
+            }
+        }
+
         function renderReceiptModal(b) {
-            document.getElementById('receiptRef').innerText = `Booking Ref: ${b.ref}`;
-            document.getElementById('issueDate').innerText = `Issued: ${new Date().toISOString().split('T')[0]}`;
-            document.getElementById('recPassenger').innerText = b.passenger;
-            document.getElementById('recId').innerText = b.idNumber || 'AB123456';
-            document.getElementById('recCabin').innerText = `${b.cabin} Class`;
-            document.getElementById('recFlightNo').innerText = `Flight ${b.flightNum}`;
-            document.getElementById('recDate').innerText = b.date;
+            // Populate Invoice View
+            document.getElementById('invRef').innerText = `Booking Ref: ${b.ref}`;
+            document.getElementById('invDate').innerText = `Date: ${new Date().toISOString().split('T')[0]}`;
+            document.getElementById('invPassenger').innerText = b.passenger;
+            document.getElementById('invEmail').innerText = b.email;
+            document.getElementById('invId').innerText = b.idNumber;
+            document.getElementById('invRoute').innerText = `${b.origin} ➔ ${b.destination}`;
+            document.getElementById('invCabinDesc').innerText = `${b.cabin} Class Flight | Travel Date: ${b.date}`;
 
-            // Display exact typed airport/city strings without breaking or auto-shortening
-            document.getElementById('recOrigin').innerText = b.origin;
-            document.getElementById('recDestination').innerText = b.destination;
-
-            // Itemized pricing calculation
             let baseFare = Math.round(b.price * 0.82);
             let taxes = b.price - baseFare;
+            document.getElementById('invBasePrice').innerText = `$${baseFare.toLocaleString()}.00`;
+            document.getElementById('invTaxes').innerText = `$${taxes.toLocaleString()}.00`;
+            document.getElementById('invTotal').innerText = `$${b.price.toLocaleString()}.00`;
 
-            document.getElementById('recBaseFare').innerText = `$${baseFare.toLocaleString()}.00`;
-            document.getElementById('recTaxes').innerText = `$${taxes.toLocaleString()}.00`;
-            document.getElementById('recTotal').innerText = `$${b.price.toLocaleString()}.00`;
+            // Populate Boarding Pass View
+            document.getElementById('bpRef').innerText = `Ref: ${b.ref}`;
+            document.getElementById('bpPassenger').innerText = b.passenger;
+            document.getElementById('bpId').innerText = b.idNumber;
+            document.getElementById('bpCabin').innerText = `${b.cabin} Class`;
+            document.getElementById('bpFlightNo').innerText = `Flight ${b.flightNum}`;
+            document.getElementById('bpOrigin').innerText = b.origin;
+            document.getElementById('bpDestination').innerText = b.destination;
+            document.getElementById('bpDate').innerText = b.date;
 
-            // Generate Barcode Cleanly
+            // Generate Barcode
             JsBarcode("#barcode", b.ref, {
                 format: "CODE128",
                 lineColor: "#003580",
                 width: 2,
-                height: 45,
+                height: 40,
                 displayValue: true
             });
+
+            // Default to invoice view on open
+            switchReceiptView('invoice');
 
             document.getElementById('receiptModal').classList.remove('hidden');
             document.getElementById('receiptModal').classList.add('flex');
         }
 
-        // LocalStorage Logic
         function getStoredBookings() {
             return JSON.parse(localStorage.getItem('sky_bookings') || '[]');
         }
@@ -502,7 +555,7 @@
             const element = document.getElementById('receiptContent');
             const opt = {
                 margin:       0.5,
-                filename:     'Booking_Flight_Receipt.pdf',
+                filename:     'Booking_Flight_Receipt_Document.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2 },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
