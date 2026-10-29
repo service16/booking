@@ -49,14 +49,14 @@
     <!-- Header / Navigation -->
     <header class="bg-bk-blue text-white shadow-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="showSection('search')">
                 <span class="text-2xl font-black tracking-tight bg-white text-bk-blue px-2.5 py-1 rounded">Booking<span class="text-bk-yellow">.com</span></span>
                 <span class="text-xs uppercase tracking-widest text-blue-200 hidden sm:inline font-semibold">Flights & Charters</span>
             </div>
             <nav class="flex items-center space-x-6 text-sm font-medium">
-                <a href="#" onclick="showSection('search')" class="hover:text-blue-200 transition">Flights</a>
-                <a href="#" onclick="showSection('search')" class="hover:text-blue-200 transition">Private Jets</a>
-                <button onclick="openManageBookings()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-1.5 rounded text-xs font-bold transition flex items-center space-x-1">
+                <a href="#" class="hover:text-blue-200 transition">Flights</a>
+                <a href="#" class="hover:text-blue-200 transition">Private Jets</a>
+                <button onclick="openManageBookings()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5">
                     <span>Manage Bookings</span>
                     <span id="bookingBadge" class="bg-bk-yellow text-slate-900 rounded-full px-1.5 py-0.2 text-[10px] font-black hidden">0</span>
                 </button>
@@ -84,7 +84,7 @@
                             <input type="text" id="destination" placeholder="City / Airport (e.g., LHR)" required class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-bk-blue uppercase font-semibold">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Travel Date (Any Date)</label>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Travel Date (Any Date / Backdate)</label>
                             <input type="date" id="flightDate" required class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-bk-blue">
                         </div>
                         <div>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="md:col-span-4 mt-2 flex justify-end">
                             <button type="submit" class="bg-bk-blue hover:bg-bk-darkBlue text-white font-bold px-8 py-3 rounded-lg text-sm transition shadow-md w-full md:w-auto">
-                                Search Flights
+                                Search Available Flights
                             </button>
                         </div>
                     </form>
@@ -115,6 +115,49 @@
             </div>
         </section>
     </main>
+
+    <!-- Professional Passenger Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <h3 class="text-lg font-extrabold text-bk-blue">Passenger & Billing Details</h3>
+                <button onclick="closeCheckout()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-2">&times;</button>
+            </div>
+            
+            <form id="checkoutForm" class="space-y-4">
+                <input type="hidden" id="chkOrigin">
+                <input type="hidden" id="chkDestination">
+                <input type="hidden" id="chkDate">
+                <input type="hidden" id="chkCabin">
+                <input type="hidden" id="chkPrice">
+                <input type="hidden" id="chkFlightNum">
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Passenger Full Name (As on ID/Passport)</label>
+                    <input type="text" id="passengerName" placeholder="e.g. John Alexander Doe" required class="w-full border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Email Address (For E-Ticket delivery)</label>
+                    <input type="email" id="passengerEmail" placeholder="john.doe@example.com" required class="w-full border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Passport / ID Number</label>
+                    <input type="text" id="passengerId" placeholder="AB1234567" required class="w-full border border-slate-300 rounded p-2.5 text-sm focus:outline-none focus:border-bk-blue font-mono uppercase">
+                </div>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-500">Route:</span> <strong id="summaryRoute" class="text-slate-800">JFK ➔ LHR</strong></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Class:</span> <strong id="summaryCabin" class="text-slate-800">Economy</strong></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Total Due:</span> <strong id="summaryPrice" class="text-bk-blue font-extrabold text-sm">$450.00</strong></div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeCheckout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm transition">Cancel</button>
+                    <button type="submit" class="bg-bk-yellow hover:bg-bk-yellowHover text-slate-900 font-bold px-6 py-2 rounded-lg text-sm transition shadow">Complete Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Manage Bookings Modal -->
     <div id="manageBookingsModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
@@ -159,6 +202,10 @@
                     <strong id="recPassenger" class="text-slate-900 text-base">John Doe</strong>
                 </div>
                 <div>
+                    <span class="text-slate-400 block text-xs uppercase font-semibold">Passport / ID</span>
+                    <strong id="recId" class="text-slate-900 text-base font-mono">AB123456</strong>
+                </div>
+                <div>
                     <span class="text-slate-400 block text-xs uppercase font-semibold">Cabin Class</span>
                     <strong id="recClass" class="text-slate-900 text-base">Economy</strong>
                 </div>
@@ -170,12 +217,16 @@
                     <span class="text-slate-400 block text-xs uppercase font-semibold">Travel Date</span>
                     <strong id="recDate" class="text-slate-900 text-base">2026-10-30</strong>
                 </div>
+                <div>
+                    <span class="text-slate-400 block text-xs uppercase font-semibold">Flight Number</span>
+                    <strong id="recFlightNo" class="text-slate-900 text-base">BK-409</strong>
+                </div>
             </div>
 
             <div class="mb-6">
                 <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Fare Breakdown & Summary</h4>
                 <div class="flex justify-between text-sm py-2 border-b border-slate-100">
-                    <span id="recFareDescription">Airfare, Taxes & Airport Fees</span>
+                    <span id="recFareDescription">Airfare, Taxes & Airport Security Fees</span>
                     <span id="recPrice" class="font-semibold">$450.00</span>
                 </div>
                 <div class="flex justify-between text-base font-extrabold text-bk-blue py-3">
@@ -221,27 +272,32 @@
             const date = document.getElementById('flightDate').value;
             const cabin = document.getElementById('cabinClass').value;
 
+            if (origin === destination) {
+                alert("Origin and destination airports cannot be the same.");
+                return;
+            }
+
             // Pricing structure
             let basePrice = cabin === 'Private Jet' ? 14500 : (cabin === 'First Class' ? 2800 : 420);
             let flightNum = 'BK-' + Math.floor(100 + Math.random() * 900);
 
             const resultsContainer = document.getElementById('resultsContainer');
             resultsContainer.innerHTML = `
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:shadow-md">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition hover:shadow-md animate-fade">
                     <div>
                         <div class="flex items-center space-x-2 mb-1">
                             <span class="bg-blue-100 text-bk-blue font-bold text-xs px-2.5 py-0.5 rounded-full">${cabin}</span>
                             <span class="text-xs font-medium text-slate-400">Flight #${flightNum}</span>
                         </div>
                         <h3 class="text-xl font-bold text-slate-900">${origin} &rarr; ${destination}</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Scheduled Departure Date: <span class="font-semibold text-slate-700">${date}</span> | Direct Flight</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Scheduled Departure: <span class="font-semibold text-slate-700">${date}</span> | Direct Flight</p>
                     </div>
                     <div class="flex items-center space-x-5 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
                         <div class="text-right">
                             <span class="text-2xl font-black text-slate-900">$${basePrice.toLocaleString()}</span>
                             <span class="block text-[10px] text-slate-400 uppercase font-semibold">Taxes & fees included</span>
                         </div>
-                        <button onclick="bookFlight('${origin}', '${destination}', '${date}', '${cabin}', ${basePrice}, '${flightNum}')" class="bg-bk-yellow hover:bg-bk-yellowHover text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow">
+                        <button onclick="openCheckout('${origin}', '${destination}', '${date}', '${cabin}', ${basePrice}, '${flightNum}')" class="bg-bk-yellow hover:bg-bk-yellowHover text-slate-900 font-bold px-6 py-2.5 rounded-lg text-sm transition shadow">
                             Book Now
                         </button>
                     </div>
@@ -249,36 +305,70 @@
             `;
         });
 
-        function bookFlight(origin, destination, date, cabin, price, flightNum) {
-            const passengerName = prompt("Enter Passenger Full Name for the E-Ticket:", "John Doe");
-            if (!passengerName) return;
+        function openCheckout(origin, destination, date, cabin, price, flightNum) {
+            document.getElementById('chkOrigin').value = origin;
+            document.getElementById('chkDestination').value = destination;
+            document.getElementById('chkDate').value = date;
+            document.getElementById('chkCabin').value = cabin;
+            document.getElementById('chkPrice').value = price;
+            document.getElementById('chkFlightNum').value = flightNum;
+
+            document.getElementById('summaryRoute').innerText = `${origin} ➔ ${destination}`;
+            document.getElementById('summaryCabin').innerText = cabin;
+            document.getElementById('summaryPrice').innerText = `$${price.toLocaleString()}.00`;
+
+            document.getElementById('checkoutModal').classList.remove('hidden');
+            document.getElementById('checkoutModal').classList.add('flex');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('flex');
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const origin = document.getElementById('chkOrigin').value;
+            const destination = document.getElementById('chkDestination').value;
+            const date = document.getElementById('chkDate').value;
+            const cabin = document.getElementById('chkCabin').value;
+            const price = parseFloat(document.getElementById('chkPrice').value);
+            const flightNum = document.getElementById('chkFlightNum').value;
+
+            const passengerName = document.getElementById('passengerName').value.trim();
+            const passengerEmail = document.getElementById('passengerEmail').value.trim();
+            const passengerId = document.getElementById('passengerId').value.toUpperCase().trim();
 
             const bookingRef = `#BK-${flightNum}-${Math.floor(1000 + Math.random() * 9000)}`;
 
             const bookingData = {
                 ref: bookingRef,
                 passenger: passengerName,
+                email: passengerEmail,
+                idNumber: passengerId,
                 cabin: cabin,
                 origin: origin,
                 destination: destination,
                 date: date,
                 price: price,
+                flightNum: flightNum,
                 bookedAt: new Date().toLocaleDateString()
             };
 
-            // Save to LocalStorage
             saveBookingToStorage(bookingData);
-
-            // Display Receipt Modal
+            closeCheckout();
             renderReceiptModal(bookingData);
-        }
+            document.getElementById('checkoutForm').reset();
+        });
 
         function renderReceiptModal(b) {
             document.getElementById('receiptRef').innerText = `Booking Ref: ${b.ref}`;
             document.getElementById('recPassenger').innerText = b.passenger;
+            document.getElementById('recId').innerText = b.idNumber || 'AB123456';
             document.getElementById('recClass').innerText = b.cabin;
             document.getElementById('recRoute').innerText = `${b.origin} ➔ ${b.destination}`;
             document.getElementById('recDate').innerText = b.date;
+            document.getElementById('recFlightNo').innerText = b.flightNum;
             document.getElementById('recPrice').innerText = `$${b.price.toLocaleString()}.00`;
             document.getElementById('recTotal').innerText = `$${b.price.toLocaleString()}.00`;
 
