@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBooker - Global Flight & Jet Reservations</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#003580',
+                            yellow: '#febbe1',
+                            dark: '#00224f',
+                            light: '#f5f7fa'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #receiptModal, #receiptModal * {
+                visibility: visible;
+            }
+            #receiptModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-brand-light text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navigation -->
+    <header class="bg-brand-blue text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl font-black tracking-tight bg-white text-brand-blue px-2 py-1 rounded">SkyBook</span>
+                <span class="text-xs uppercase tracking-widest text-blue-200 hidden sm:inline">Global Aviation</span>
+            </div>
+            <nav class="flex items-center space-x-4 text-sm font-medium">
+                <a href="#" class="hover:text-blue-200 transition">Flights</a>
+                <a href="#" class="hover:text-blue-200 transition">Private Jets</a>
+                <a href="#" class="hover:text-blue-200 transition">My Bookings</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <!-- Hero & Search Section -->
+        <section class="bg-brand-blue text-white pb-12 pt-6 px-4 shadow-inner">
+            <div class="max-w-5xl mx-auto">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Find your next flight or private charter</h1>
+                <p class="text-blue-200 mb-6">Book economy, first class, or private jets worldwide with instant confirmation and verifiable e-receipts.</p>
+
+                <!-- Search Form Box -->
+                <div class="bg-amber-400 p-2 rounded-lg shadow-lg">
+                    <form id="searchForm" class="grid grid-cols-1 md:grid-cols-4 gap-2 bg-white p-4 rounded-md">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">From</label>
+                            <input type="text" id="origin" placeholder="City or Airport (e.g., JFK)" required class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-brand-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">To</label>
+                            <input type="text" id="destination" placeholder="City or Airport (e.g., LHR)" required class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-brand-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Departure Date</label>
+                            <input type="date" id="flightDate" required class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-brand-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Class / Type</label>
+                            <select id="cabinClass" class="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:border-brand-blue bg-white">
+                                <option value="Economy">Economy Class</option>
+                                <option value="First Class">First Class</option>
+                                <option value="Private Jet">Private Jet Charter</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-4 mt-2 flex justify-end">
+                            <button type="submit" class="bg-brand-blue hover:bg-blue-900 text-white font-bold px-6 py-2.5 rounded text-sm transition shadow">
+                                Search Available Flights
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results Section -->
+        <section class="max-w-5xl mx-auto px-4 py-8">
+            <h2 class="text-xl font-bold mb-4 text-slate-700">Available Itineraries</h2>
+            <div id="resultsContainer" class="space-y-4">
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center text-slate-500">
+                    Use the search bar above to find and book flights across all cabin classes.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Receipt / Booking Confirmation Modal -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-amber-400"></div>
+            
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-2xl font-black text-brand-blue">E-TICKET RECEIPT</h3>
+                    <p class="text-xs text-slate-500" id="receiptRef">Booking Ref: #SB-948201</p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-block bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Confirmed</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 border-y border-slate-200 py-4 mb-6 text-sm">
+                <div>
+                    <span class="text-slate-400 block text-xs uppercase">Passenger Name</span>
+                    <strong id="recPassenger" class="text-slate-800">John Doe</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs uppercase">Cabin Class</span>
+                    <strong id="recClass" class="text-slate-800">Economy</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs uppercase">Flight Route</span>
+                    <strong id="recRoute" class="text-slate-800">JFK ➔ LHR</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-xs uppercase">Departure Date</span>
+                    <strong id="recDate" class="text-slate-800">2026-10-30</strong>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Payment Summary</h4>
+                <div class="flex justify-between text-sm py-1 border-b border-slate-100">
+                    <span id="recFareDescription">Base Airfare & Taxes</span>
+                    <span id="recPrice">$450.00</span>
+                </div>
+                <div class="flex justify-between text-base font-bold text-brand-blue py-2">
+                    <span>Total Paid</span>
+                    <span id="recTotal">$450.00</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 no-print">
+                <button onclick="window.print()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded text-sm transition">
+                    Print / Save PDF
+                </button>
+                <button onclick="closeReceipt()" class="bg-brand-blue hover:bg-blue-900 text-white font-semibold px-6 py-2 rounded text-sm transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 text-xs py-6 text-center">
+        <p>&copy; 2026 SkyBook Global Aviation Inc. All rights reserved.</p>
+    </footer>
+
+    <!-- Frontend Logic Script -->
+    <script>
+        // Set minimum date to allow backdating or future booking as needed
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('flightDate').value = todayStr;
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const origin = document.getElementById('origin').value.toUpperCase();
+            const destination = document.getElementById('destination').value.toUpperCase();
+            const date = document.getElementById('flightDate').value;
+            const cabin = document.getElementById('cabinClass').value;
+
+            // Generate mock flight results based on user input
+            let basePrice = cabin === 'Private Jet' ? 12500 : (cabin === 'First Class' ? 2400 : 350);
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="bg-blue-100 text-brand-blue font-bold text-xs px-2 py-0.5 rounded">${cabin}</span>
+                            <span class="text-xs text-slate-400">Flight #SB-772</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800">${origin} ➔ ${destination}</h3>
+                        <p class="text-xs text-slate-500">Scheduled Departure: ${date} | Direct Flight</p>
+                    </div>
+                    <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-end">
+                        <div class="text-right">
+                            <span class="text-2xl font-extrabold text-slate-900">$${basePrice.toLocaleString()}</span>
+                            <span class="block text-[10px] text-slate-400 uppercase">All taxes included</span>
+                        </div>
+                        <button onclick="bookFlight('${origin}', '${destination}', '${date}', '${cabin}', ${basePrice})" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-5 py-2 rounded text-sm transition shadow-sm">
+                            Book Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        function bookFlight(origin, destination, date, cabin, price) {
+            const passengerName = prompt("Enter Passenger Full Name:", "John Doe");
+            if (!passengerName) return;
+
+            // Populate receipt modal
+            document.getElementById('receiptRef').innerText = 'Booking Ref: #SB-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('recPassenger').innerText = passengerName;
+            document.getElementById('recClass').innerText = cabin;
+            document.getElementById('recRoute').innerText = `${origin} ➔ ${destination}`;
+            document.getElementById('recDate').innerText = date;
+            document.getElementById('recPrice').innerText = `$${price.toLocaleString()}.00`;
+            document.getElementById('recTotal').innerText = `$${price.toLocaleString()}.00`;
+
+            // Show modal
+            document.getElementById('receiptModal').classList.remove('hidden');
+            document.getElementById('receiptModal').classList.add('flex');
+        }
+
+        function closeReceipt() {
+            document.getElementById('receiptModal').classList.remove('flex');
+            document.getElementById('receiptModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
