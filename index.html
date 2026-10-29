@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2pdf Library for Instant PDF Downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- JsBarcode CDN for Aviation Barcodes -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -52,9 +54,12 @@
                 <span class="text-xs uppercase tracking-widest text-blue-200 hidden sm:inline font-semibold">Flights & Charters</span>
             </div>
             <nav class="flex items-center space-x-6 text-sm font-medium">
-                <a href="#" class="hover:text-blue-200 transition">Flights</a>
-                <a href="#" class="hover:text-blue-200 transition">Private Jets</a>
-                <a href="#" class="hover:text-blue-200 transition">Manage Bookings</a>
+                <a href="#" onclick="showSection('search')" class="hover:text-blue-200 transition">Flights</a>
+                <a href="#" onclick="showSection('search')" class="hover:text-blue-200 transition">Private Jets</a>
+                <button onclick="openManageBookings()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-3 py-1.5 rounded text-xs font-bold transition flex items-center space-x-1">
+                    <span>Manage Bookings</span>
+                    <span id="bookingBadge" class="bg-bk-yellow text-slate-900 rounded-full px-1.5 py-0.2 text-[10px] font-black hidden">0</span>
+                </button>
             </nav>
         </div>
     </header>
@@ -111,6 +116,28 @@
         </section>
     </main>
 
+    <!-- Manage Bookings Modal -->
+    <div id="manageBookingsModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full p-6 relative max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                <div>
+                    <h3 class="text-xl font-extrabold text-bk-blue">My Booking History</h3>
+                    <p class="text-xs text-slate-500">View, manage, or reprint your saved e-tickets</p>
+                </div>
+                <button onclick="closeManageBookings()" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-2">&times;</button>
+            </div>
+
+            <div id="manageBookingsContainer" class="flex-grow overflow-y-auto py-4 space-y-3">
+                <!-- Dynamically populated from LocalStorage -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+                <button onclick="clearAllBookings()" class="text-xs text-red-600 hover:text-red-800 font-semibold">Clear All History</button>
+                <button onclick="closeManageBookings()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-5 py-2 rounded-lg text-sm transition">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- E-Ticket Receipt Modal -->
     <div id="receiptModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
         <div id="receiptContent" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto">
@@ -145,7 +172,7 @@
                 </div>
             </div>
 
-            <div class="mb-8">
+            <div class="mb-6">
                 <h4 class="text-xs font-bold uppercase text-slate-400 mb-2">Fare Breakdown & Summary</h4>
                 <div class="flex justify-between text-sm py-2 border-b border-slate-100">
                     <span id="recFareDescription">Airfare, Taxes & Airport Fees</span>
@@ -155,6 +182,12 @@
                     <span>Total Amount Paid</span>
                     <span id="recTotal">$450.00</span>
                 </div>
+            </div>
+
+            <!-- Aviation Barcode Graphic -->
+            <div class="border-t border-slate-200 pt-4 mb-6 flex flex-col items-center justify-center">
+                <svg id="barcode" class="w-full max-w-xs h-16"></svg>
+                <span class="text-[10px] text-slate-400 tracking-widest uppercase mt-1">Official Boarding Pass Barcode</span>
             </div>
 
             <div class="flex justify-end space-x-3 no-print">
@@ -173,10 +206,13 @@
         <p>&copy; 2026 Booking.com B.V. All rights reserved. Secure Global Travel Services.</p>
     </footer>
 
-    <!-- Frontend Logic Script -->
+    <!-- Application Logic Script -->
     <script>
-        // Default date set to today (users can freely backdate or pick future dates)
+        // Set default input date to today
         document.getElementById('flightDate').value = new Date().toISOString().split('T')[0];
+
+        // Initialize LocalStorage Badge on load
+        updateBadge();
 
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -185,7 +221,7 @@
             const date = document.getElementById('flightDate').value;
             const cabin = document.getElementById('cabinClass').value;
 
-            // Pricing logic based on class type
+            // Pricing structure
             let basePrice = cabin === 'Private Jet' ? 14500 : (cabin === 'First Class' ? 2800 : 420);
             let flightNum = 'BK-' + Math.floor(100 + Math.random() * 900);
 
@@ -217,18 +253,132 @@
             const passengerName = prompt("Enter Passenger Full Name for the E-Ticket:", "John Doe");
             if (!passengerName) return;
 
-            // Populate receipt modal fields
-            document.getElementById('receiptRef').innerText = `Booking Ref: #${flightNum}-${Math.floor(1000 + Math.random() * 9000)}`;
-            document.getElementById('recPassenger').innerText = passengerName;
-            document.getElementById('recClass').innerText = cabin;
-            document.getElementById('recRoute').innerText = `${origin} ➔ ${destination}`;
-            document.getElementById('recDate').innerText = date;
-            document.getElementById('recPrice').innerText = `$${price.toLocaleString()}.00`;
-            document.getElementById('recTotal').innerText = `$${price.toLocaleString()}.00`;
+            const bookingRef = `#BK-${flightNum}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-            // Display modal
+            const bookingData = {
+                ref: bookingRef,
+                passenger: passengerName,
+                cabin: cabin,
+                origin: origin,
+                destination: destination,
+                date: date,
+                price: price,
+                bookedAt: new Date().toLocaleDateString()
+            };
+
+            // Save to LocalStorage
+            saveBookingToStorage(bookingData);
+
+            // Display Receipt Modal
+            renderReceiptModal(bookingData);
+        }
+
+        function renderReceiptModal(b) {
+            document.getElementById('receiptRef').innerText = `Booking Ref: ${b.ref}`;
+            document.getElementById('recPassenger').innerText = b.passenger;
+            document.getElementById('recClass').innerText = b.cabin;
+            document.getElementById('recRoute').innerText = `${b.origin} ➔ ${b.destination}`;
+            document.getElementById('recDate').innerText = b.date;
+            document.getElementById('recPrice').innerText = `$${b.price.toLocaleString()}.00`;
+            document.getElementById('recTotal').innerText = `$${b.price.toLocaleString()}.00`;
+
+            // Generate Barcode
+            JsBarcode("#barcode", b.ref.replace('#', ''), {
+                format: "CODE128",
+                lineColor: "#003580",
+                width: 2,
+                height: 50,
+                displayValue: true
+            });
+
             document.getElementById('receiptModal').classList.remove('hidden');
             document.getElementById('receiptModal').classList.add('flex');
+        }
+
+        // LocalStorage Logic
+        function getStoredBookings() {
+            return JSON.parse(localStorage.getItem('sky_bookings') || '[]');
+        }
+
+        function saveBookingToStorage(booking) {
+            const bookings = getStoredBookings();
+            bookings.unshift(booking);
+            localStorage.setItem('sky_bookings', JSON.stringify(bookings));
+            updateBadge();
+        }
+
+        function updateBadge() {
+            const count = getStoredBookings().length;
+            const badge = document.getElementById('bookingBadge');
+            if (count > 0) {
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function openManageBookings() {
+            const bookings = getStoredBookings();
+            const container = document.getElementById('manageBookingsContainer');
+
+            if (bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 font-medium">
+                        No previous bookings found. Book a flight above to save tickets here!
+                    </div>
+                `;
+            } else {
+                container.innerHTML = bookings.map((b, idx) => `
+                    <div class="border border-slate-200 rounded-lg p-4 flex justify-between items-center bg-slate-50 hover:bg-white transition">
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-extrabold text-bk-blue">${b.ref}</span>
+                                <span class="bg-blue-100 text-bk-blue text-[10px] font-bold px-2 py-0.5 rounded">${b.cabin}</span>
+                            </div>
+                            <p class="font-bold text-slate-800 text-sm mt-1">${b.passenger} (${b.origin} ➔ ${b.destination})</p>
+                            <p class="text-xs text-slate-500">Travel Date: ${b.date} | Paid: $${b.price.toLocaleString()}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick='reprintTicket(${JSON.stringify(b)})' class="bg-bk-blue hover:bg-bk-darkBlue text-white text-xs font-bold px-3 py-1.5 rounded transition">
+                                View Ticket
+                            </button>
+                            <button onclick="deleteBooking(${idx})" class="text-slate-400 hover:text-red-600 font-bold px-2 text-lg">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('manageBookingsModal').classList.remove('hidden');
+            document.getElementById('manageBookingsModal').classList.add('flex');
+        }
+
+        function reprintTicket(booking) {
+            closeManageBookings();
+            renderReceiptModal(booking);
+        }
+
+        function deleteBooking(index) {
+            let bookings = getStoredBookings();
+            bookings.splice(index, 1);
+            localStorage.setItem('sky_bookings', JSON.stringify(bookings));
+            updateBadge();
+            openManageBookings();
+        }
+
+        function clearAllBookings() {
+            if (confirm("Are you sure you want to delete all saved booking records?")) {
+                localStorage.removeItem('sky_bookings');
+                updateBadge();
+                openManageBookings();
+            }
+        }
+
+        function closeManageBookings() {
+            document.getElementById('manageBookingsModal').classList.remove('flex');
+            document.getElementById('manageBookingsModal').classList.add('hidden');
         }
 
         function closeReceipt() {
